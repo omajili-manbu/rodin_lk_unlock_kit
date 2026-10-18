@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# build/test outputs
+build/
+dist/
+*.report.txt
+token.txt
+unlock*.sig
+*.token.bin
+synth*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# NOTE: keys/rodin_unlock_priv.pem is intentionally tracked and public.
+# Do not add it (or the images) to .gitignore.

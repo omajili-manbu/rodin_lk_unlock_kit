@@ -1,0 +1,10 @@
+# Paste the two lines printed by:
+#   fastboot oem get_token
+#
+# The signer accepts lines containing "token:".
+# Do NOT commit a real token: it is challenge-bound, short-lived, and tied to
+# the current slot.
+#
+# Example (placeholders, not real tokens):
+(bootloader) token: <TOKEN1>
+(bootloader) token: <TOKEN2>

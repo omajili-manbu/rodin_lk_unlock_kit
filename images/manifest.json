@@ -1,0 +1,33 @@
+{
+  "name": "rodin_lk_unlock_kit",
+  "device": "rodin",
+  "device_names": [
+    "Redmi Turbo 4"
+  ],
+  "platform": "MediaTek",
+  "generated": "2026-10-19",
+  "key": {
+    "algorithm": "RSA-2048",
+    "e": 65537,
+    "spki_sha256": "ca6b606035ebe83cddd515a3d47f2e5f5b396c37d38edc0a6027afed22ebc704",
+    "private_key": "keys/rodin_unlock_priv.pem",
+    "public_key": "keys/rodin_unlock_pub.pem",
+    "note": "The private key is intentionally public. It only signs unlock tokens for the modified images below."
+  },
+  "versions": {
+    "303": {
+      "image": "images/rodin_303_our_lk.img",
+      "sha256": "187a890b462d843dc1e0e391015130d24d8ed1c2f795e7bf4aed181ef3475d16",
+      "size": 16777216,
+      "official_image_size": 3829328,
+      "official_image_sha256": "7c159caf6accd60639c4cdd586c631a277f8ff4831e62c78f61a77415bff6e3f"
+    },
+    "304": {
+      "image": "images/rodin_304_our_lk.img",
+      "sha256": "e0ff77c7bbd814b3fee671655bb189ddf3fe3cf3846e264db00d6ec3d2d48242",
+      "size": 16777216,
+      "official_image_size": 3829600,
+      "official_image_sha256": "7978a8a8c117bd96e556400aa9328dae34b9375232236c2508937108e6a2db3d"
+    }
+  }
+}

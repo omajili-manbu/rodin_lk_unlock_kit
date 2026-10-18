@@ -1,0 +1,34 @@
+# NOTICE
+
+`rodin_lk_unlock_kit`  
+Copyright (c) 2026 omajili-manbu
+
+## Code and documentation
+
+The original scripts and documentation in this repository are licensed under
+the GNU Affero General Public License, version 3 only (AGPL-3.0-only). See
+[LICENSE](LICENSE).
+
+## Firmware images
+
+The images in `images/` are modified copies derived from firmware for the
+Redmi Turbo 4 (rodin). They are provided for interoperability, repair, and
+security research.
+
+- Xiaomi, Redmi, MediaTek, HyperOS and related names are trademarks of their
+  respective owners.
+- This project is not affiliated with, sponsored by, or endorsed by Xiaomi or
+  MediaTek.
+- All rights to the original firmware remain with their owners.
+- The images are **not** licensed under AGPL-3.0; the AGPL-3.0 license applies
+  only to the original scripts and documentation.
+- If you are a rights holder and believe content should be removed, please open
+  an issue and it will be reviewed.
+
+## Keys
+
+The RSA key pair in `keys/` was generated for this project. The private key is
+intentionally published so that anyone can sign unlock tokens for the modified
+images. It is not a vendor key. The key is a functional artifact, not a
+copyrightable work; the AGPL-3.0 license applies to the original code and
+documentation, not to the key material. See [keys/README.md](keys/README.md).
