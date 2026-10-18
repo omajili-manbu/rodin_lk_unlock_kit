@@ -90,7 +90,7 @@ adb shell su -c 'dd if=/data/local/tmp/our_lk.img of=/dev/block/by-name/lk_b bs=
 adb shell su -c 'sync'
 ```
 
-两个槽都要写。也可以沿用你之前工具箱“写 LK”的流程，只替换镜像文件。
+两个槽都要写。
 
 ### 2. 每个槽解锁
 
