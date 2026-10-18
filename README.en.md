@@ -35,6 +35,8 @@ public key. This kit:
    `lk` and `aee`, carrying the new image SHA-256 so the preloader accepts the
    modified images; the original `cert2` DER and signature are untouched;
 3. ships an offline token signer that uses the (publicly shared) private key.
+   It signs the **base64 token string** (`token1 + token2`), not the decoded
+   binary; the LK verifies the string and then base64-decodes it.
 
 No code is changed: only two 256-byte moduli and two cert2 hash-override
 blocks differ from the official images.

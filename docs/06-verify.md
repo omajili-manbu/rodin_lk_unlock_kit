@@ -87,16 +87,16 @@ python3 tools/sign_token.py --self-test
 python3 tools/sign_token.py --token-file token.txt -o unlock.sig --verify
 ```
 
-它会用私钥里的公钥参数重新计算 `sig^e mod n`，检查 type-1 padding，并和 token
-比较。
+它会用私钥里的公钥参数重新计算 `sig^e mod n`，检查 type-1 padding，并和
+`token1+token2` 的 **base64 字符串**比较（不是解码后的二进制）。
 
 可选地用 OpenSSL 交叉验证（`rsautl` 在新版本已弃用，仅作参考）：
 
 ```bash
 python3 tools/sign_token.py --token-file token.txt -o unlock.sig --raw
 openssl rsautl -verify -pubin -inkey keys/rodin_unlock_pub.pem \
-  -in unlock.sig -out recovered.bin
-cmp recovered.bin unlock.sig.token.bin && echo MATCH
+  -in unlock.sig -out recovered.txt
+cmp recovered.txt unlock.sig.token.txt && echo MATCH
 ```
 
 ## 手动验证覆盖块

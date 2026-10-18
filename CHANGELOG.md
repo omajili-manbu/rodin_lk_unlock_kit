@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.0.1 — 2026-10-19
+
+### Fixed
+
+- `tools/sign_token.py`: sign the **base64 token string** (`token1 + token2`)
+  with raw RSA PKCS#1 v1.5 type-1, not the decoded binary. The LK verifies the
+  recovered ASCII string and then base64-decodes it. This matches the old
+  working `unlock_a.sig` / `unlock_b.sig` (80-char payload, 59-byte decoded
+  token, magic `0x5501`, TLV type 1/3/2, `rodin`).
+- Documentation updated: `docs/02-principle.md`, `docs/04-sign-token.md`,
+  `docs/07-troubleshooting.md`, `README.md`, `README.en.md`.
+
 ## v1.0.0 — 2026-10-19
 
 Initial public release.

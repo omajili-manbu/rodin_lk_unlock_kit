@@ -148,7 +148,8 @@ fastboot oem lks        # 期望返回 0
   `0xA0` 哈希覆盖块，写入新镜像的 SHA-256；原 cert2 与签名保持不变。这利用了
   MTK cert2 ASN.1 解析的已知逻辑缺陷（同类公开研究：pwnage24mtk / CVE-2023-20696 等）。
 - **token 签名**：裸 RSA PKCS#1 v1.5 type-1（不是 `dgst` 那种 DigestInfo），
-  解出的明文就是 token 本身（magic `0x5501`、设备 ID、challenge 等）。
+  签的是 **token1+token2 的 base64 字符串**（不是解码后的二进制）；
+  `lk` 验签恢复字符串后再 base64 解码（magic `0x5501`、设备 ID、challenge 等）。
 - **代码未改**：除两个 256 字节公钥和两个 cert2 哈希块外，`bl2_ext`、`lk_main_`、
   `lk_dtbo` 等全部与官方逐字节一致。
 

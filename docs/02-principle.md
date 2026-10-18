@@ -34,12 +34,12 @@ cert1, cert2, lk_main_, cert1, cert2, lk_dtbo, cert1, cert2
 小米官方流程：
 
 1. `fastboot oem get_token` 返回两段 base64；
-2. 两段拼接后解码，得到一个约 80 字节的二进制 token；
+2. 两段拼接后是一个约 80 个 ASCII 字符的 base64 字符串；解码后约 59 字节的二进制 token；
 3. token 通常以 magic `0x5501` 开头，包含 type、设备 ID（`rodin`）、随机
    challenge 等字段；
-4. 官方云端用小米的私钥对 token 签名，返回 256 字节 RSA 签名；
+4. 官方云端用小米的私钥对 **base64 字符串**做裸 PKCS#1 type-1 签名，返回 256 字节 RSA 签名；
 5. `fastboot stage <sig>` + `fastboot oem unlock`；
-6. `lk` 用内置公钥验证签名，解析 token，写入 seccfg/RPMB，完成解锁。
+6. `lk` 用内置公钥验签恢复 base64 字符串，再 base64 解码并解析 token，写入 seccfg/RPMB，完成解锁。
 
 token 与 **challenge + 槽位** 绑定：重启、切槽、或先执行 `oem unlock` 都会
 让旧 token 失效。

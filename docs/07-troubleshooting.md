@@ -85,7 +85,7 @@ ls -l unlock.sig    # 256
 
 ### `token sig decrypt failed`
 
-- token 解码错误（拼接方式/换行/截断）；
+- token 字符串不完整、拼接错、或被换行/空格截断；
 - token 已过期（challenge 重置）；
 - 镜像公钥和签名私钥不匹配；
 - 签名不是裸 PKCS#1 type-1（例如误用了 `openssl dgst -sign`）。
@@ -96,13 +96,13 @@ ls -l unlock.sig    # 256
 python3 tools/sign_token.py --token-file token.txt -o unlock.sig --raw
 ```
 
-看解码后的 token 是否 `magic=5501`、长度约 80、包含 `rodin`。不对就换
-`--decode concat-bytes` / `concat-b64` 再试。
+看工具打印的 token 字符串（约 80 字符）和解码后的二进制（约 59 字节、magic
+`0x5501`、包含 `rodin`）。如果拼接不对，用 `--token` 直接传完整的拼接字符串。
 
 ### `[unlock_token]no token found!`
 
-解码后的数据不是 token（可能只解出了 token1，或拼接方式错）。用 `--decode`
-指定拼接方式，或检查 `token.txt` 是否完整包含两行。
+base64 字符串解码后不是 token（可能只拼了 token1，或被截断）。检查 `token.txt`
+是否完整包含两行，或直接用 `--token` 传完整的拼接字符串。
 
 ### `Failed to set lock state`
 
@@ -156,8 +156,8 @@ python3 tools/sign_token.py -k /path/to/rodin_unlock_priv.pem --token-file token
 
 ### `payload too long`
 
-token 解码后超过了 245 字节（RSA-2048 type-1 的上限）。rodin 的 token 约 80 字节；
-如果解出很长一段，说明拼接/解码错了。
+签名对象（token1+token2 的 base64 字符串）超过 245 字符（RSA-2048 type-1 上限）。
+rodin 的字符串约 80 字符；如果很长，说明把无关内容也拼进来了。
 
 ### `bad PKCS#1 type-1 padding`
 

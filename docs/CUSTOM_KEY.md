@@ -83,6 +83,7 @@ fastboot oem lks
 ```
 
 `sign_token.py` 默认用仓库里的公开私钥；`-k` 会覆盖成你的私钥。
+签名对象是 `token1+token2` 的 base64 字符串，不是解码后的二进制；换私钥不影响格式。
 
 ## 5. 发布/分享
 

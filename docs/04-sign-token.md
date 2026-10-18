@@ -9,7 +9,8 @@
 (bootloader) token: <token2>
 ```
 
-两段拼接、解码后是一个约 80 字节的二进制 token。它不是纯随机数据，通常包含：
+两段拼接后是一个约 80 个 ASCII 字符的 base64 字符串；base64 解码后是一个
+约 59 字节的二进制 token（challenge 长度可能让长度略有变化）。它不是纯随机数据，通常包含：
 
 - magic `0x5501`；
 - type / 长度；
@@ -32,15 +33,20 @@ token 与 **challenge + 槽位** 绑定：
 `lk` 验证的是 **裸 RSA PKCS#1 v1.5 type-1**：
 
 ```
-EM  = 00 01 FF FF ... FF 00 || token_payload
+EM  = 00 01 FF FF ... FF 00 || base64(token1 + token2)
 sig = EM^d mod n          # 256 字节
 ```
 
 注意：
 
+- **签名对象是 base64 字符串**（约 80 个 ASCII 字符），不是解码后的二进制；
 - 不是 `openssl dgst -sign` 那种“先 hash 再加 DigestInfo”的签名；
-- 这里是把 token 明文直接做 type-1 填充，再用私钥指数运算；
-- 解出的明文就是 token 本身，`lk` 再解析 magic/type/设备 ID/challenge。
+- 这里是把 base64 字符串直接做 type-1 填充，再用私钥指数运算；
+- `lk` 验签恢复出这个字符串后，再 base64 解码，解析 magic/type/设备 ID/challenge。
+
+这一点已用旧版第三方解锁留下的真实 `unlock_a.sig` / `unlock_b.sig` 验证：
+旧签名恢复出的 payload 是 80 字符 base64 字符串，解码后 59 字节、magic
+`0x5501`、TLV type 1/3/2、包含 `rodin`。
 
 `tools/sign_token.py` 用纯 Python 标准库实现：
 
@@ -96,32 +102,31 @@ python3 tools/sign_token.py --token-file token.txt -o unlock.sig --verify
 python3 tools/sign_token.py --self-test
 ```
 
-## 解码候选与 `--decode`
+## 签名对象与 token 校验
 
-两段 base64 的拼接方式可能有两种：
+工具签的是 `token1 + token2` 直接拼接后的 **base64 字符串**。它同时会：
 
-- `concat-bytes`：先分别解码两段，再把字节拼起来；
-- `concat-b64`：先把两段 base64 字符串拼起来，再整体解码；
-- `single`：只有一段；
-- `concat-strip-pad`：去掉中间的 `=` 后再拼。
+- 打印这个字符串（约 80 字符）和 SHA-256；
+- base64 解码并打印二进制长度、hex、magic、是否包含 `rodin`；
+- 用 `--raw` 时把字符串保存为 `<out>.token.txt`（不是二进制）。
 
-工具默认会打印所有候选，并优先选：
-
-1. 以 `0x5501` 开头的；
-2. 包含 `rodin` 的；
-3. 长度约 40–200 字节的；
-4. 更长的。
-
-如果自动选择不对，显式指定：
+如果两段 token 的拼接方式特殊（例如中间有 `=`），直接用 `--token` 传完整的
+拼接字符串，工具会原样签名：
 
 ```bash
-python3 tools/sign_token.py --token-file token.txt --decode concat-bytes -o unlock.sig
+python3 tools/sign_token.py --token '<token1><token2>' -o unlock.sig
 ```
 
-正常情况下解码后的 token 会打印类似：
+`--token-hex` 用于你已经有解码后的二进制、想反推 base64 字符串的场景：工具会
+先把 hex 转成字节再 base64 编码，然后签名。
+
+正常情况下工具会打印类似：
 
 ```
-token: len=80 magic=5501 ascii="U..0rodin..."
+token string: 80 chars
+  VQEC...
+  decoded binary: 59 bytes
+  magic: 5501  rodin: True
 ```
 
 如果 magic 不是 `0x5501`，先检查 token 是否完整、是否被换行/空格截断。
@@ -136,8 +141,8 @@ token: len=80 magic=5501 ascii="U..0rodin..."
 
 | 现象 | 原因 |
 |---|---|
-| `token sig decrypt failed` | token 解码错、token 过期、镜像公钥不匹配 |
-| `[unlock_token]no token found` | 解码后的数据不是 token（拼接方式错） |
+| `token sig decrypt failed` | token 字符串不完整/拼接错、token 过期、镜像公钥不匹配 |
+| `[unlock_token]no token found` | base64 字符串解码后不是 token（拼接/截断） |
 | `Failed to set lock state` | 没先 stage、token 过期、或之前误执行过 `oem unlock` |
 | `cpuid mismatch` / `device name mismatch` | token 不属于这台设备 |
 | `token verify fail! Can not be write into rpmb` | RPMB/锁定状态或 token 问题 |
@@ -146,7 +151,7 @@ token: len=80 magic=5501 ascii="U..0rodin..."
 
 1. 重新 `get_token`（确保 challenge 是新的）；
 2. 确认当前槽位；
-3. 用 `--raw` 保存解码后的 token，检查 magic/长度；
+3. 用 `--raw` 保存签名对应的 base64 字符串，并看工具打印的解码结果（magic/长度）；
 4. 重新签名；
 5. 立即 `fastboot stage` + `oem unlock`；
 6. 检查 `fastboot oem lks` 是否为 0。
